@@ -12,12 +12,23 @@ class LookUpController extends Controller
       $response =   Parts::where("Status","A")->get();
 
       if(!$response){
-        return response()->json(["Status"=>404],404);
+        return response()->json(["StatusCode"=>404,
+        "Message"=>"Not Found",
+        'Data'=>$response
+      ],404);
       }
-      return response()->json($response->all(),200);
+      return response()->json(["StatusCode"=>200,
+        "Message"=>"Success",
+        "Data"=>$response->all()],200);
     }
     public function getDiscount(){
       $result = adjustmenRateDetails::where('ACTIVE',1)->get();
-      return response()->json($result,200);
+      if(!$result){
+        return response()->json(['StatusCode'=>404,
+                              'Message'=>"Not Found",
+                              'Data'=>$result],404);
+      }
+      return response()->json([ 'StatusCode'=>200,
+                                      'Data'=>$result],200);
     }
 }
