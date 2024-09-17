@@ -34,7 +34,7 @@ class OrderSlipController extends Controller
                         "ENCODEDBY" => $request["ENCODEDBY"],
                         "PREPAREDBY" => $request['PREPAREDBY'],
                         "USER_CURRENT_TRANSACTION" => $request['USER_CURRENT_TRANSACTION'],
-                        "OSTYPE" => $request['OSTYPE'],
+                        "OSTYPE" => 1,
                         "BRANCHID" => $request['BRANCHID'],
                         "ENCODEDDATE" => $date,
                         "OSDATE" => $date,
@@ -50,7 +50,7 @@ class OrderSlipController extends Controller
                         "VAT_EX" => $request['VAT_EX'],
                         "ORDERSLIPNO"=>$orderslipNumber,
                         "PAID"=>0,
-                        "BUSDATE"=>$date
+                        "BUSDATE"=>$date,
                     ]);
 
                     $line_number = OrderSlipDetail::getNewLineNumber($request['OSNUMBER']);

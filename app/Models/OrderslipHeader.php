@@ -40,7 +40,8 @@ class OrderslipHeader extends Model
         "VAT_EX",
         "OSNUMBER",
         "PAID",
-        "BUSDATE"
+        "BUSDATE",
+        "OSTYPE"
 
     ];
     public static function getNewId($branch_id=null, $outlet_id=null, $device_no=null){
