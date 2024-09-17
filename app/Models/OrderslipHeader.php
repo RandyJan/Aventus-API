@@ -38,6 +38,10 @@ class OrderslipHeader extends Model
         "SC_DISCOUNT",
         "SC_DISCOUNT_AMOUNT",
         "VAT_EX",
+        "OSNUMBER",
+        "PAID",
+        "BUSDATE"
+
     ];
     public static function getNewId($branch_id=null, $outlet_id=null, $device_no=null){
         $result = static::where('BRANCHID', $branch_id)

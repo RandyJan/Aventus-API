@@ -47,8 +47,10 @@ class OrderSlipController extends Controller
                         "VAT_AMOUNT" => $request['VAT_AMOUNT'],
                         "SC_DISCOUNT_PERCENTAGE" => $request['SC_DISCOUNT_PERCENTAGE'],
                         "SC_DISCOUNT_AMOUNT" => $request['SC_DISCOUNT_AMOUNT'],
-                        "VAT_EX" => $request['VAT-EX'],
-                        "ORDERSLIPNO"=>$orderslipNumber
+                        "VAT_EX" => $request['VAT_EX'],
+                        "ORDERSLIPNO"=>$orderslipNumber,
+                        "PAID"=>0,
+                        "BUSDATE"=>$date
                     ]);
 
                     $line_number = OrderSlipDetail::getNewLineNumber($request['OSNUMBER']);
