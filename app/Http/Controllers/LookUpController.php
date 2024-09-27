@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Parts;
 use Illuminate\Http\Request;
 use App\Models\adjustmenRateDetails;
+use App\Traits\auth;
 class LookUpController extends Controller
 {
+  use auth;
     //
-    public function getAllProducts(){
-      $response =   Parts::where("Status","A")->get();
+    public function getAllProducts(Request $request){
+      if($this->basicauth($request->header('Authorization', 'default'))){
+      $response =   Parts::where("Status","A")->limit(100)->get();
 
       if(!$response){
         return response()->json(["StatusCode"=>404,
@@ -21,6 +24,11 @@ class LookUpController extends Controller
         "Message"=>"Success",
         "Data"=>$response->all()],200);
     }
+    return response()->json([
+      'StatusCode' => 401,
+      'Message' => "Unauthorized Access"
+  ], 401);
+  }
     public function getDiscount(){
       $result = adjustmenRateDetails::where('ACTIVE',1)->get();
       if(!$result){

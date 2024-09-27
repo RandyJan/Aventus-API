@@ -2,28 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\adjustmenRateDetails;
 use App\Models\OrderslipDetail;
 use App\Models\OrderslipHeader;
+use App\Models\SiteParts;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-
+use App\traits\auth;
+use Illuminate\Support\Facades\DB;
 class OrderSlipController extends Controller
 {
     //
+    use auth;
     public function addNewJobOrder(Request $request)
     {
-        $username = env('USER_NAME');
-        $password = env('PASSWORD');
-        $authHeader = 'Basic ' . base64_encode($username . ':' . $password);
-        Log::info($request->all());
-        $headerInfo = $request->all();
-        //  return $request->all();
-        // Log::info($request->header('Authorization', 'default'));
+        DB::beginTransaction();
         $orderslipNumber = OrderslipHeader::getNewId($request['BRANCHID'],$request['OUTLETID'],$request['DEVICENO']);
-        if ($request->header('Authorization', 'default') == $authHeader) {
-            // try {
+        if ( $this->basicauth($request->header('Authorization', 'default'))) {
+            try {
                 $date = Carbon::now();
                     $headerData =   OrderslipHeader::create([
                         "CUSTOMERNAME" => $request['CUSTOMERNAME'],
@@ -50,50 +48,71 @@ class OrderSlipController extends Controller
                         "VAT_EX" => $request['VAT_EX'],
                         "ORDERSLIPNO"=>$orderslipNumber,
                         "PAID"=>0,
-                        "BUSDATE"=>$date,
+                        "DATE"=>OrderslipDetail::getClarionDate($date),
+                        "BUSDATE"=>$date
                     ]);
 
                     $line_number = OrderSlipDetail::getNewLineNumber($request['OSNUMBER']);
-                    foreach ($request['items'] as $items) {
+                        foreach ($request['items'] as $items) {
+                            $isActive = SiteParts::where('PRODUCT_ID',$items['PRODUCT_ID'])->where('STATUS','A ')->first();
+                            $isDiscount = adjustmenRateDetails::find($items['DISCID']);
+                            if($isActive){
+                                if(!$isDiscount || !$isDiscount->ACTIVE){
+                                    DB::rollBack();
+                                    return response()->json([
+                                        'StatusCode'=>404,
+                                        'Message'=>'Discount is not active or does not exists',
+                                        "DISCID"=>$items['DISCID']
+                                    ],404);
+                                }
+                                $itemData =   OrderslipDetail::insert([
+                                    'ORDERSLIPDETAILID' => OrderSlipDetail::getNewDetailId($request['OSNUMBER']),
+                                    'ORDERSLIPNO' => $orderslipNumber,
+                                    'BRANCHID' => $items['BRANCHID'],
+                                    'OUTLETID' => $items['OUTLETID'],
+                                    'DEVICENO' => $items['DEVICENO'],
+                                    'OSNUMBER' => $request["OSNUMBER"],
+                                    // 'MAIN_OSNUMBER' => $items['OSNUMBER'],
+                                    'PRODUCT_ID' => $items['PRODUCT_ID'],
+                                    'PARTNO' => $items['PARTNO'],
+                                    'RETAILPRICE' => $items['RETAILPRICE'],
+                                    'QUANTITY' => $items['QUANTITY'],
+                                    'REQUESTEDQTY' => $items['REQUESTEDQTY'],
+                                    'AMOUNT' => $items['AMOUNT'],
+                                    'NETAMOUNT' => $items['NETAMOUNT'],
+                                    // 'REMARKS' => $request->notes,
+                                    'LINE_NO' => $line_number,
+                                    'ORNO' => $line_number,
+                                    // 'OSTYPE' => $$items['OSTYPE'],
+                                    'STATUS' => 'X',
+                                    // 'SEQUENCE' => $sequence,
+                                    'OSDATE' => OrderslipDetail::getClarionDate($date),
+                                    'LOCATIONID' => $items['GROUP_CODE'],
+                                    'ENCODEDDATE' => $date,
+                                    'DISPLAYMONITOR' => 1,
+                                    'POSLINENO' => $line_number,
+                                    'OS_SC_ID' => $items['OS_SC_ID'],
+                                    'DISCID' => $items['DISCID'],
+                                    'PRODUCTGROUP' => $items['LOCATION'],
+        
+                                    'VATABLE_SALES' => 0,
+                                    'VAT_AMOUNT' => 0,
+                                    'SC_DISCOUNT_PERCENTAGE' => 0,
+                                    'SC_DISCOUNT_AMOUNT' => 0,
+                                    'PSTATUS' => 0
+                                ]);
+                                DB::commit();
+                            }
 
-                        $itemData =   OrderslipDetail::insert([
-                            'ORDERSLIPDETAILID' => OrderSlipDetail::getNewDetailId($request['OSNUMBER']),
-                            'ORDERSLIPNO' => $orderslipNumber,
-                            'BRANCHID' => $items['BRANCHID'],
-                            'OUTLETID' => $items['OUTLETID'],
-                            'DEVICENO' => $items['DEVICENO'],
-                            'OSNUMBER' => $items['OSNUMBER'],
-                            // 'MAIN_OSNUMBER' => $items['OSNUMBER'],
-                            'PRODUCT_ID' => $items['PRODUCT_ID'],
-                            'PARTNO' => $items['PARTNO'],
-                            'RETAILPRICE' => $items['RETAILPRICE'],
-                            'QUANTITY' => $items['QUANTITY'],
-                            'REQUESTEDQTY' => $items['REQUESTEDQTY'],
-                            'AMOUNT' => $items['AMOUNT'],
-                            'NETAMOUNT' => $items['NETAMOUNT'],
-                            // 'REMARKS' => $request->notes,
-                            'LINE_NO' => $line_number,
-                            'ORNO' => $line_number,
-                            // 'OSTYPE' => $$items['OSTYPE'],
-                            'STATUS' => 'X',
-                            // 'SEQUENCE' => $sequence,
-                            'OSDATE' => OrderslipDetail::getClarionDate($date),
-                            'LOCATIONID' => $items['GROUP_CODE'],
-                            'ENCODEDDATE' => $date,
-                            'DISPLAYMONITOR' => 1,
-                            'POSLINENO' => $line_number,
-                            'OS_SC_ID' => $items['OS_SC_ID'],
-                            'DISCID' => $items['DISCID'],
-                            'PRODUCTGROUP' => $items['LOCATION'],
-
-
-                            'VATABLE_SALES' => 0,
-                            'VAT_AMOUNT' => 0,
-                            'SC_DISCOUNT_PERCENTAGE' => 0,
-                            'SC_DISCOUNT_AMOUNT' => 0,
-                            'PSTATUS' => 0
-                        ]);
-                    
+                            else{
+                                DB::rollBack();
+                                return response()->json([
+                                    'StatusCode'=>404,
+                                    "Message"=>"Product is not active or does not exists",
+                                    "Product_ID"=>$items['PRODUCT_ID']
+                                ],404);
+                            }
+                         
                 }
                 return response()->json([
                     'StatusCode' => 200,
@@ -101,14 +120,15 @@ class OrderSlipController extends Controller
                     'OSNUMBER'=>$request['OSNUMBER']
 
                 ], 200);
-            // } catch (Exception $e) {
+            } catch (Exception $e) {
+                DB::rollBack();
 
-            //     return response()->json([
-            //         'StatusCode' => 500,
-            //         'Message' => 'Error please try again',
-            //         'Details' => $e
-            //     ], 500);
-            // }
+                return response()->json([
+                    'StatusCode' => 500,
+                    'Message' => 'Error please try again',
+                    'Details' => $e
+                ], 500);
+            }
         } else {
             return response()->json([
                 'StatusCode' => 401,

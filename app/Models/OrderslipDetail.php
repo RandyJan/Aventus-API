@@ -32,6 +32,7 @@ class OrderslipDetail extends Model
         "GROUP_SERVING",
         "PRODUCTGROUP",
         "OSNUMBER",
+        'DISCID'
     ];
     public static function getNewDetailId($orderslip_number)
     {

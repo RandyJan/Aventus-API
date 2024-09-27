@@ -4,27 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-class Parts extends Model
+class SiteParts extends Model
 {
     use HasFactory;
-    protected $table = "Parts";
-    
+    protected $table = 'SiteParts';
 
-    protected $fillabe = [
+    protected $fillable = [
+        'ARNOC',
         'PRODUCT_ID',
         'MASTERCODE',
+        'BSUNITCODE',
+        'GROUP',
         'CATEGORY',
         'PRODUCTNO',
         'PRODUCTCODE',
         'PARTNO',
         'DESCRIPTION',
-        'SHORTCODE',
-        'QUANTITY',
-        'COST',
-        'NETCOST',
-        'RETAIL',
-        'NETRETAIL'
+        'EDC_CODES',
+        'STANDARD'
+
     ];
-    public $timestamps = false;
 }
