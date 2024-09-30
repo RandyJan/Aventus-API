@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Log;
 use App\traits\auth;
 use Illuminate\Support\Facades\DB;
 
+use function PHPUnit\Framework\isEmpty;
+
 class OrderSlipController extends Controller
 {
     //
@@ -56,10 +58,11 @@ class OrderSlipController extends Controller
                 $line_number = OrderSlipDetail::getNewLineNumber($request['OSNUMBER']);
                 foreach ($request['items'] as $items) {
                     $isActive = SiteParts::where('PRODUCT_ID', $items['PRODUCT_ID'])->where('STATUS', 'A ')->first();
-                    $isDiscount = adjustmenRateDetails::find($items['DISCID']);
+                    $isDiscount = adjustmenRateDetails::where('ID',$items['DISCID'])->where('ACTIVE','1')->first();
+                    // return $isDiscount;
                     if ($isActive) {
-                        if ($items['DISCID'] != null || $items['DISCID'] != '') {
-                            if (!$isDiscount || !$isDiscount->ACTIVE) {
+                        if (!$items['DISCID'] == ""||!$items['DISCID'] ==null) {
+                            if (!$isDiscount) {
                                 DB::rollBack();
                                 return response()->json([
                                     'StatusCode' => 404,
