@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\traits\auth;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Support\Facades\DB;
 
 use function PHPUnit\Framework\isEmpty;
@@ -103,8 +104,8 @@ class OrderSlipController extends Controller
 
                             'VATABLE_SALES' => $items['VATABLE_SALES'],
                             'VAT_AMOUNT' => $items['VAT_AMOUNT'],
-                              "VAT_EX" => $request['VAT_EX'],
-                            'SC_DISCOUNT_PERCENTAGE' => $items['SC_DISCOUNT_PERCETAGE'],
+                              "VAT_EX" => $items['VAT_EX'],
+                            'SC_DISCOUNT_PERCENTAGE' => $items['SC_DISCOUNT_PERCENTAGE'],
                             'SC_DISCOUNT_AMOUNT' => $items['SC_DISCOUNT_AMOUNT'],
                             'PSTATUS' => 0
                         ]);
