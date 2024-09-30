@@ -101,10 +101,11 @@ class OrderSlipController extends Controller
                             'DISCID' => $items['DISCID'],
                             'PRODUCTGROUP' => $items['LOCATION'],
 
-                            'VATABLE_SALES' => 0,
-                            'VAT_AMOUNT' => 0,
-                            'SC_DISCOUNT_PERCENTAGE' => 0,
-                            'SC_DISCOUNT_AMOUNT' => 0,
+                            'VATABLE_SALES' => $items['VATABLE_SALES'],
+                            'VAT_AMOUNT' => $items['VAT_AMOUNT'],
+                              "VAT_EX" => $request['VAT_EX'],
+                            'SC_DISCOUNT_PERCENTAGE' => $items['SC_DISCOUNT_PERCETAGE'],
+                            'SC_DISCOUNT_AMOUNT' => $items['SC_DISCOUNT_AMOUNT'],
                             'PSTATUS' => 0
                         ]);
                         DB::commit();
