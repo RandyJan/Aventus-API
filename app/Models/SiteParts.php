@@ -21,7 +21,16 @@ class SiteParts extends Model
         'PARTNO',
         'DESCRIPTION',
         'EDC_CODES',
-        'STANDARD'
+        'STANDARD',
+        'SHORTCODE',
+        'QUANTITY',
+        'COST',
+        'NETCOST',
+        'RETAIL',
+        'NETRETAIL',
+        'CREDIT',
+        'PROVINCE',
+        'STATUS'
 
     ];
 }
