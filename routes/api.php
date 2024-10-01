@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DataController;
 use App\Http\Controllers\LookUpController;
 use App\Http\Controllers\OrderSlipController;
 use Illuminate\Http\Request;
@@ -24,3 +25,4 @@ Route::post("/login",[AuthController::class,"login"]);
 Route::get("/getAllProducts",[LookUpController::class, "getAllProducts"]);
 Route::get("/getDiscounts",[LookUpController::class,'getDiscount']);
 Route::post("/addNewJO",[OrderSlipController::class,'addNewJobOrder']);
+Route::post('/dispatchData',[DataController::class,'dispatchData']);
