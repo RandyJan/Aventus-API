@@ -72,8 +72,13 @@ class OrderSlipController extends Controller
                                 ], 404);
                             }
                         }
+                        $retval = OrderslipDetail::where('OSNUMBER',$request['OSNUMBER'])->orderBy('POSLINENO','desc')->first();
+                        $ret = 1;
+                        if($retval){
+                            $ret = $retval->ORDERSLIPDETAILID+1;
+                        }
                         $itemData =   OrderslipDetail::insert([
-                            'ORDERSLIPDETAILID' => OrderSlipDetail::getNewDetailId($request['OSNUMBER']),
+                            'ORDERSLIPDETAILID' => $ret,
                             'ORDERSLIPNO' => $orderslipNumber,
                             'BRANCHID' => $items['BRANCHID'],
                             'OUTLETID' => $items['OUTLETID'],
@@ -88,8 +93,8 @@ class OrderSlipController extends Controller
                             'AMOUNT' => $items['AMOUNT'],
                             'NETAMOUNT' => $items['NETAMOUNT'],
                             // 'REMARKS' => $request->notes,
-                            'LINE_NO' => $line_number,
-                            'ORNO' => $line_number,
+                            'LINE_NO' => $ret,
+                            'ORNO' => $ret,
                             // 'OSTYPE' => $$items['OSTYPE'],
                             'STATUS' => 'X',
                             // 'SEQUENCE' => $sequence,
@@ -97,7 +102,7 @@ class OrderSlipController extends Controller
                             'LOCATIONID' => $items['GROUP_CODE'],
                             'ENCODEDDATE' => $date,
                             'DISPLAYMONITOR' => 1,
-                            'POSLINENO' => $line_number,
+                            'POSLINENO' => $ret,
                             'OS_SC_ID' => $items['OS_SC_ID'],
                             'DISCID' => $items['DISCID'],
                             'PRODUCTGROUP' => $items['LOCATION'],
