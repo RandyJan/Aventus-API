@@ -112,7 +112,8 @@ class OrderSlipController extends Controller
                               "VAT_EX" => $items['VAT_EX'],
                             'SC_DISCOUNT_PERCENTAGE' => $items['SC_DISCOUNT_PERCENTAGE'],
                             'SC_DISCOUNT_AMOUNT' => $items['SC_DISCOUNT_AMOUNT'],
-                            'PSTATUS' => 0
+                            'PSTATUS' => 0,
+                            'DISCOUNT'=>$items['DISCOUNT']
                         ]);
                         DB::commit();
                     } else {
