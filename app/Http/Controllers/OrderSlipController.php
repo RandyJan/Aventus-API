@@ -33,9 +33,20 @@ class OrderSlipController extends Controller
                     'ACCOUNTTYPE'=>'required|integer',
                     'CUSTOMERNAME'=>'required|string',
                     'items'=>'required',
-                    "PRODUCT_ID"=>"required|integer"
+                ],[
+                    'OSNUMBER.unique'=>'OS_NUMBER is already taken',
+                    'OSNUMBER.required'=>'OS_NUMBER field is required',
+                    'CUSTOMERNAME.required'=>'CUSTOMER_NAME field is required',
+                    'ACCOUNTTYPE.required'=>'ACCOUNTTYPE field is required'
                 ]);
-                
+                    if($request['IS_SC']){
+                        $request->validate(['SC_DISCOUNT_PERCENTAGE'=>'required|integer',
+                        'SC_DISCOUNT_AMOUNT'=>'required|integer'], [
+                            'SC_DISCOUNT_AMOUNT.required' => 'The SC_DISCOUNT_AMOUNT field is required.',
+                            'SC_DISCOUNT_PERCENTAGE.required' => 'The SC_DISCOUNT_PERCENTAGE field is required.',
+                        ]);
+                    }
+                    Log::info($request->all());
                 $date = Carbon::now();
                 $headerData =   OrderslipHeader::create([
                     "CUSTOMERNAME" => $request['CUSTOMERNAME'],
@@ -67,6 +78,7 @@ class OrderSlipController extends Controller
                     "CUSTTIN"=>$request['CUSTTIN'],
                     "CUSTADDRESS"=>$request["CUSTADDRESS"],
                     "IS_SC"=>$request["IS_SC"]
+                    
                 ]);
 
                 $line_number = OrderSlipDetail::getNewLineNumber($request['OSNUMBER']);
@@ -125,7 +137,8 @@ class OrderSlipController extends Controller
                             'SC_DISCOUNT_PERCENTAGE' => $items['SC_DISCOUNT_PERCENTAGE'],
                             'SC_DISCOUNT_AMOUNT' => $items['SC_DISCOUNT_AMOUNT'],
                             'PSTATUS' => 0,
-                            'DISCOUNT'=>$items['DISCOUNT']
+                            'DISCOUNT'=>$items['DISCOUNT'],
+                            'IS_COUNT'=>$request['IS_SC']?1:null
                         ]);
                         DB::commit();
                     } else {
