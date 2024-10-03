@@ -41,7 +41,7 @@ class OrderSlipController extends Controller
                 ]);
                     if($request['IS_SC']){
                         $request->validate(['SC_DISCOUNT_PERCENTAGE'=>'required|integer',
-                        'SC_DISCOUNT_AMOUNT'=>'required|integer'], [
+                        'SC_DISCOUNT_AMOUNT'=>'required|decimal'], [
                             'SC_DISCOUNT_AMOUNT.required' => 'The SC_DISCOUNT_AMOUNT field is required.',
                             'SC_DISCOUNT_PERCENTAGE.required' => 'The SC_DISCOUNT_PERCENTAGE field is required.',
                         ]);
