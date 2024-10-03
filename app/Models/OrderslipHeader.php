@@ -41,7 +41,10 @@ class OrderslipHeader extends Model
         "OSNUMBER",
         "PAID",
         "BUSDATE",
-        "DATE"
+        "DATE",
+        "CUSTTIN",
+        "CUSTADDRESS",
+        "IS_SC"
 
     ];
     public static function getNewId($branch_id=null, $outlet_id=null, $device_no=null){

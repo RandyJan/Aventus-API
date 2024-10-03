@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class OrderslipDetail extends Model
 {
@@ -32,7 +33,8 @@ class OrderslipDetail extends Model
         "GROUP_SERVING",
         "PRODUCTGROUP",
         "OSNUMBER",
-        'DISCID'
+        'DISCID',
+        'DISCOUNT'
     ];
     public static function getNewDetailId($orderslip_number)
     {
@@ -40,11 +42,13 @@ class OrderslipDetail extends Model
         $result = static::where('OSNUMBER', $orderslip_number)
             ->orderBy('LINE_NO', 'desc')
             ->first();
-
-        if (is_null($result)) {
+        Log::info($result);
+        if (!$result) {
+            Log::info("true");
             return 1;
         }
-        return $result->ORDERSLIPDETAILID + 1;
+        $test = $result->ORDERSLIPDETAILID;
+        return $test+1 ;
     }
     public static function getNewLineNumber($orderslip_number)
     {

@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Log;
 use App\traits\auth;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Validator;
 
 use function PHPUnit\Framework\isEmpty;
 
@@ -26,6 +28,14 @@ class OrderSlipController extends Controller
         $orderslipNumber = OrderslipHeader::getNewId($request['BRANCHID'], $request['OUTLETID'], $request['DEVICENO']);
         if ($this->basicauth($request->header('Authorization', 'default'))) {
             try {
+                $request->validate([
+                    'OSNUMBER'=>'required|integer|unique:OrderslipHeader',
+                    'ACCOUNTTYPE'=>'required|integer',
+                    'CUSTOMERNAME'=>'required|string',
+                    'items'=>'required',
+                    "PRODUCT_ID"=>"required|integer"
+                ]);
+                
                 $date = Carbon::now();
                 $headerData =   OrderslipHeader::create([
                     "CUSTOMERNAME" => $request['CUSTOMERNAME'],
@@ -53,7 +63,10 @@ class OrderSlipController extends Controller
                     "ORDERSLIPNO" => $orderslipNumber,
                     "PAID" => 0,
                     "DATE" => OrderslipDetail::getClarionDate($date),
-                    "BUSDATE" => $date
+                    "BUSDATE" => $date,
+                    "CUSTTIN"=>$request['CUSTTIN'],
+                    "CUSTADDRESS"=>$request["CUSTADDRESS"],
+                    "IS_SC"=>$request["IS_SC"]
                 ]);
 
                 $line_number = OrderSlipDetail::getNewLineNumber($request['OSNUMBER']);
@@ -106,7 +119,6 @@ class OrderSlipController extends Controller
                             'OS_SC_ID' => $items['OS_SC_ID'],
                             'DISCID' => $items['DISCID'],
                             'PRODUCTGROUP' => $items['LOCATION'],
-
                             'VATABLE_SALES' => $items['VATABLE_SALES'],
                             'VAT_AMOUNT' => $items['VAT_AMOUNT'],
                               "VAT_EX" => $items['VAT_EX'],
@@ -131,13 +143,14 @@ class OrderSlipController extends Controller
                     'OSNUMBER' => $request['OSNUMBER']
 
                 ], 200);
-            } catch (Exception $e) {
+            } catch (ValidationException $e) {
                 DB::rollBack();
 
                 return response()->json([
                     'StatusCode' => 500,
-                    'Message' => 'Error please try again',
-                    'Details' => $e
+                    'Message' => $e->getMessage(),
+                    'Details' =>$e->errors(),
+
                 ], 500);
             }
         } else {
