@@ -138,7 +138,7 @@ class OrderSlipController extends Controller
                             'SC_DISCOUNT_AMOUNT' => $items['SC_DISCOUNT_AMOUNT'],
                             'PSTATUS' => 0,
                             'DISCOUNT'=>$items['DISCOUNT'],
-                            'IS_COUNT'=>$request['IS_SC']?1:null
+                            'SC_COUNT'=>$request['IS_SC']?1:null
                         ]);
                         DB::commit();
                     } else {
