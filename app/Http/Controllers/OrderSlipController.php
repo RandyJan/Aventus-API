@@ -40,8 +40,8 @@ class OrderSlipController extends Controller
                     'ACCOUNTTYPE.required'=>'ACCOUNTTYPE field is required'
                 ]);
                     if($request['IS_SC']){
-                        $request->validate(['SC_DISCOUNT_PERCENTAGE'=>'required|integer',
-                        'SC_DISCOUNT_AMOUNT'=>'required|decimal'], [
+                        $request->validate(['SC_DISCOUNT_PERCENTAGE'=>'required',
+                        'SC_DISCOUNT_AMOUNT'=>'required'], [
                             'SC_DISCOUNT_AMOUNT.required' => 'The SC_DISCOUNT_AMOUNT field is required.',
                             'SC_DISCOUNT_PERCENTAGE.required' => 'The SC_DISCOUNT_PERCENTAGE field is required.',
                         ]);
