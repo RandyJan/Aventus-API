@@ -29,7 +29,7 @@ class OrderSlipController extends Controller
         if ($this->basicauth($request->header('Authorization', 'default'))) {
             try {
                 $request->validate([
-                    'OSNUMBER'=>'required|integer|unique:OrderslipHeader',
+                    'OSNUMBER'=>'required|unique:OrderslipHeader',
                     'ACCOUNTTYPE'=>'required|integer',
                     'CUSTOMERNAME'=>'required|string',
                     'items'=>'required',
@@ -52,11 +52,11 @@ class OrderSlipController extends Controller
                     "CUSTOMERNAME" => $request['CUSTOMERNAME'],
                     "OSNUMBER" => $request["OSNUMBER"],
                     "DEVICENO" => $request['DEVICENO'],
-                    "ACCOUNTTYPE" => $request["ACCOUNTTYPE"],
-                    "CCENAME" => $request["CCENAME"],
-                    "ENCODEDBY" => $request["ENCODEDBY"],
-                    "PREPAREDBY" => $request['PREPAREDBY'],
-                    "USER_CURRENT_TRANSACTION" => $request['USER_CURRENT_TRANSACTION'],
+                    "ACCOUNTTYPE" => $request["ACCOUNTTYPE"],//for review
+                    "CCENAME" => $request["ENCODER"],
+                    "ENCODEDBY" => $request["ENCODER"],//Encoder
+                    "PREPAREDBY" => $request['ENCODER'],
+                    // "USER_CURRENT_TRANSACTION" => $request['USER_CURRENT_TRANSACTION'],
                     "OSTYPE" => 1,
                     "BRANCHID" => $request['BRANCHID'],
                     "ENCODEDDATE" => $date,
@@ -75,9 +75,9 @@ class OrderSlipController extends Controller
                     "PAID" => 0,
                     "DATE" => OrderslipDetail::getClarionDate($date),
                     "BUSDATE" => $date,
-                    "CUSTTIN"=>$request['CUSTTIN'],
-                    "CUSTADDRESS"=>$request["CUSTADDRESS"],
-                    "IS_SC"=>$request["IS_SC"]
+                    "CUSTTIN"=>$request['CUSTOMERNO'],
+                    "CUSTADDRESS"=>$request["CUSTOMERADDRESS"],
+                    "IS_SC"=>$request["SCPWD"]
                     
                 ]);
 
@@ -105,16 +105,16 @@ class OrderSlipController extends Controller
                         $itemData =   OrderslipDetail::insert([
                             'ORDERSLIPDETAILID' => $ret,
                             'ORDERSLIPNO' => $orderslipNumber,
-                            'BRANCHID' => $items['BRANCHID'],
-                            'OUTLETID' => $items['OUTLETID'],
-                            'DEVICENO' => $items['DEVICENO'],
+                            'BRANCHID' => $request['BRANCHID'],
+                            'OUTLETID' => $request['OUTLETID'],
+                            'DEVICENO' => $request['DEVICENO'],
                             'OSNUMBER' => $request["OSNUMBER"],
                             // 'MAIN_OSNUMBER' => $items['OSNUMBER'],
                             'PRODUCT_ID' => $items['PRODUCT_ID'],
                             'PARTNO' => $items['PARTNO'],
                             'RETAILPRICE' => $items['RETAILPRICE'],
                             'QUANTITY' => $items['QUANTITY'],
-                            'REQUESTEDQTY' => $items['REQUESTEDQTY'],
+                            'REQUESTEDQTY' => $items['QUANTITY'],
                             'AMOUNT' => $items['AMOUNT'],
                             'NETAMOUNT' => $items['NETAMOUNT'],
                             // 'REMARKS' => $request->notes,
@@ -124,13 +124,13 @@ class OrderSlipController extends Controller
                             'STATUS' => 'X',
                             // 'SEQUENCE' => $sequence,
                             'OSDATE' => OrderslipDetail::getClarionDate($date),
-                            'LOCATIONID' => $items['GROUP_CODE'],
+                            // 'LOCATIONID' => $items['GROUP_CODE'],
                             'ENCODEDDATE' => $date,
                             'DISPLAYMONITOR' => 1,
                             'POSLINENO' => $ret,
-                            'OS_SC_ID' => $items['OS_SC_ID'],
+                            // 'OS_SC_ID' => $items['OS_SC_ID'],
                             'DISCID' => $items['DISCID'],
-                            'PRODUCTGROUP' => $items['LOCATION'],
+                            // 'PRODUCTGROUP' => $items['LOCATION'],
                             'VATABLE_SALES' => $items['VATABLE_SALES'],
                             'VAT_AMOUNT' => $items['VAT_AMOUNT'],
                               "VAT_EX" => $items['VAT_EX'],
@@ -138,7 +138,7 @@ class OrderSlipController extends Controller
                             'SC_DISCOUNT_AMOUNT' => $items['SC_DISCOUNT_AMOUNT'],
                             'PSTATUS' => 0,
                             'DISCOUNT'=>$items['DISCOUNT'],
-                            'SC_COUNT'=>$request['IS_SC']?1:null
+                            'SC_COUNT'=>$request['SCPWD']>0?1:null
                         ]);
                         DB::commit();
                     } else {
