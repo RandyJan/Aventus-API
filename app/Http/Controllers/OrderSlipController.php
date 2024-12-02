@@ -47,7 +47,7 @@ class OrderSlipController extends Controller
                         ]);
                     }
                     Log::info($request->all());
-                $date = Carbon::now();
+                $date = Carbon::now("Asia/Singapore")->format('m/d/y');
                 $headerData =   OrderslipHeader::create([
                     "CUSTOMERNAME" => $request['CUSTOMERNAME'],
                     "OSNUMBER" => $request["OSNUMBER"],
@@ -174,5 +174,12 @@ class OrderSlipController extends Controller
                 'Message' => "Unauthorized Access"
             ], 401);
         }
+    }
+
+    public function sumrpt($branch,$date){
+      $os =  OrderslipHeader::select("ORDERSLIPNO","BUSDATE","OSNUMBER as JONUMBER","CCENAME as CASHIERNAME","TOTALAMOUNT","ACCOUNTTYPE as COMPANY","DISCOUNT","SC_DISCOUNT_AMOUNT","NETAMOUNT","VATABLE_SALES","VAT_EX")->where('DATE','>=',$date)->where("BRANCHID",$branch)->get();
+    
+    
+        return response()->json($os);
     }
 }

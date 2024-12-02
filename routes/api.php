@@ -26,3 +26,4 @@ Route::get("/getAllProducts",[LookUpController::class, "getAllProducts"]);
 Route::get("/getDiscounts",[LookUpController::class,'getDiscount']);
 Route::post("/addNewJO",[OrderSlipController::class,'addNewJobOrder']);
 Route::post('/dispatchData',[DataController::class,'dispatchData']);
+Route::get('/summaryRPT/{branch}/{date}',[OrderSlipController::class,"sumrpt"]);

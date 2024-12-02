@@ -34,7 +34,7 @@ class OrderslipHeader extends Model
         "STATUS",
         "OUTLETID",
         "VATABLE_SALES",
-        "VAT_AMAOUNT",
+        "VAT_AMOUNT",
         "SC_DISCOUNT",
         "SC_DISCOUNT_AMOUNT",
         "VAT_EX",
