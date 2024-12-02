@@ -57,7 +57,7 @@ class OrderSlipController extends Controller
                     "ENCODEDBY" => $request["ENCODER"],//Encoder
                     "PREPAREDBY" => $request['ENCODER'],
                     // "USER_CURRENT_TRANSACTION" => $request['USER_CURRENT_TRANSACTION'],
-                    "OSTYPE" => 1,
+                    "OSTYPE" => 1,//identifier of the request's origin 1 api 0 ambulant
                     "BRANCHID" => $request['BRANCHID'],
                     "ENCODEDDATE" => $date,
                     "OSDATE" => $date,
@@ -140,8 +140,10 @@ class OrderSlipController extends Controller
                             'DISCOUNT'=>$items['DISCOUNT'],
                             'SC_COUNT'=>$request['SCPWD']>0?1:null
                         ]);
+                        Log::info($request->all());
                         DB::commit();
                     } else {
+                        Log::info("Failed product does not exists"+$items['PRODUCT_ID']);
                         DB::rollBack();
                         return response()->json([
                             'StatusCode' => 404,
