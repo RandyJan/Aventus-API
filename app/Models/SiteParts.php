@@ -30,7 +30,10 @@ class SiteParts extends Model
         'NETRETAIL',
         'CREDIT',
         'PROVINCE',
-        'STATUS'
+        'STATUS',
+        'VAT',
+        'STDCARCASSWEIGHT',
+        'TIMPLADOS'
 
     ];
 }
