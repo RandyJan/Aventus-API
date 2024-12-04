@@ -6,6 +6,7 @@ use App\Models\adjustmenRateDetails;
 use App\Models\OrderslipDetail;
 use App\Models\OrderslipHeader;
 use App\Models\SiteParts;
+use App\Models\transactionDetails;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -34,8 +35,8 @@ class OrderSlipController extends Controller
                     'CUSTOMERNAME'=>'required|string',
                     'items'=>'required',
                 ],[
-                    'OSNUMBER.unique'=>'OS_NUMBER is already taken',
-                    'OSNUMBER.required'=>'OS_NUMBER field is required',
+                    'OSNUMBER.unique'=>'JONUMBER is already taken',
+                    'OSNUMBER.required'=>'JONUMBER field is required',
                     'CUSTOMERNAME.required'=>'CUSTOMER_NAME field is required',
                     'ACCOUNTTYPE.required'=>'ACCOUNTTYPE field is required'
                 ]);
@@ -47,7 +48,7 @@ class OrderSlipController extends Controller
                         ]);
                     }
                     Log::info($request->all());
-                $date = Carbon::now("Asia/Singapore")->format('m/d/y');
+                $date = Carbon::now();
                 $headerData =   OrderslipHeader::create([
                     "CUSTOMERNAME" => $request['CUSTOMERNAME'],
                     "OSNUMBER" => $request["OSNUMBER"],
@@ -143,7 +144,7 @@ class OrderSlipController extends Controller
                         Log::info($request->all());
                         DB::commit();
                     } else {
-                        Log::info("Failed product does not exists"+$items['PRODUCT_ID']);
+                        // Log::info("Failed product does not exists"+$items['PRODUCT_ID']);
                         DB::rollBack();
                         return response()->json([
                             'StatusCode' => 404,
@@ -155,7 +156,7 @@ class OrderSlipController extends Controller
                 return response()->json([
                     'StatusCode' => 200,
                     'Message' => 'Success',
-                    'OSNUMBER' => $request['OSNUMBER']
+                    'JONUMBER' => $request['OSNUMBER']
 
                 ], 200);
             } catch (ValidationException $e) {
@@ -177,9 +178,28 @@ class OrderSlipController extends Controller
     }
 
     public function sumrpt($branch,$date){
-      $os =  OrderslipHeader::select("ORDERSLIPNO","BUSDATE","OSNUMBER as JONUMBER","CCENAME as CASHIERNAME","TOTALAMOUNT","ACCOUNTTYPE as COMPANY","DISCOUNT","SC_DISCOUNT_AMOUNT","NETAMOUNT","VATABLE_SALES","VAT_EX")->where('DATE','>=',$date)->where("BRANCHID",$branch)->get();
+    //   $os =  OrderslipHeader::select("ORDERSLIPNO","BUSDATE","OSNUMBER as JONUMBER","CCENAME as CASHIERNAME","TOTALAMOUNT","ACCOUNTTYPE as COMPANY","DISCOUNT","SC_DISCOUNT_AMOUNT","NETAMOUNT","VATABLE_SALES","VAT_EX")->where('DATE','>=',$date)->where("BRANCHID",$branch)->get();
     
-    
-        return response()->json($os);
+    // $os = OrderslipDetail::leftJoin('OrderSlipHeader',"OrderSlipDetails.OSNUMBER","=",
+    // "OrderSlipHeader.OSNUMBER")
+    // ->select("OrderSlipHeader.ORDERSLIPNO as ORNUMBER","OrderSlipHeader.BUSDATE",
+    // "OrderSlipHeader.OSNUMBER as JONUMBER","OrderSlipHeader.CCENAME as CASHIERNAME","OrderSlipHeader.CUSTOMERNAME as PATIENTNAME","OrderSlipHeader.ACCOUNTTYPE as COMPANY",
+    // "OrderSlipDetails.AMOUNT","OrderSlipDetail.DISCOUNT","OrderSlipDetails.NETAMOUNT","OrderSlipDetails.VATABLE_SALES",
+    // "OrderSlipDetails.VAT_EX","OrderSlipDetails.VAT_AMOUNT",)
+    // ->where("OrderSlipHeader.DATE",">=",$date)
+    // ->where("OrderSlipHeader.BRANCHID",$branch)
+    // ->get();
+
+        $res = transactionDetails::leftJoin('TransactionHeader','TransactionDetails.TRHID','=','TransactionHeader.TRHID')
+        ->select('TransactionDetails.DESC','TransactionDetails.TOTAL')
+        ->where("TransactionHeader.BRANCHID",$branch)
+        ->where("TransactionHeader.DATE",'>=',$date)
+        ->get();
+        $data =[];
+        foreach($res as $item){
+
+        }
+    // $res = transactionDetails::leftJoin('TransactionHeader','TransactionDetails.ORDERSLIPNO')
+        return response()->json($res);
     }
 }
