@@ -26,40 +26,40 @@ class DataController extends Controller
                     try {
 
 
-                        $result = SiteParts::updateOrInsert(['ARNOC' => $items['ARNOC'], 'PRODUCT_ID' => $items['PRODUCT_ID']], [
-                            'ARNOC' => $items['ARNOC'],
-                            'PRODUCT_ID' => $items['PRODUCT_ID'],
+                        $result = SiteParts::updateOrInsert(['ARNOC' => $items['BRANCHID'], 'PRODUCT_ID' => $items['PRODUCTID']], [
+                            'ARNOC' => $items['BRANCHID'],
+                            'PRODUCT_ID' => $items['PRODUCTID'],
                             'MASTERCODE' => $items['LEVEL1'],
                             'BSUNITCODE' => $items['LEVEL2'],
                             'GROUP' => $items['LEVEL3'],
                             'CATEGORY' => $items['LEVEL4'],
                             'PRODUCTNO' => $items['LEVEL5'],
-                            'PRODUCTCODE' => $items['PRODUCTCODE'],
+                            // 'PRODUCTCODE' => $items['PRODUCTCODE'],
                             'PARTNO' => $items['PARTNO'],
                             'DESCRIPTION' => $items['DESCRIPTION'],
-                            'EDC_CODES' => $items['EDC_CODES'],
-                            'STANDARD' => $items['STANDARD'],
+                            // 'EDC_CODES' => $items['EDC_CODES'],
+                            // 'STANDARD' => $items['STANDARD'],
                             'SHORTCODE' => $items['SHORTCODE'],
-                            'QUANTITY' => $items['QUANTITY'],
-                            'COST' => $items['COST'],
-                            'NETCOST' => $items['NETCOST'],
+                            // 'QUANTITY' => $items['QUANTITY'],
+                            // 'COST' => $items['COST'],
+                            // 'NETCOST' => $items['NETCOST'],
                             'RETAIL' => $items['RETAIL'],
                             'NETRETAIL' => $items['NETRETAIL'],
-                            'CREDIT' => $items['CREDIT'],
-                            'PROVINCE' => $items['PROVINCE'],
+                            // 'CREDIT' => $items['CREDIT'],
+                            // 'PROVINCE' => $items['PROVINCE'],
                             'STATUS' => "A"
                         ]);
 
                         $resProducts[] = [
                             'StatusCode' => 200,
                             'Message' => 'Success',
-                            'ProductID' => $items['PRODUCT_ID']
+                            'ProductID' => $items['PRODUCTID']
                         ];
                     } catch (QueryException $e) {
                         $resProducts[] = [
                             'StatusCode' => 500,
                             'Message' => 'Failed',
-                            'ProductID' => $items['PRODUCT_ID'],
+                            'ProductID' => $items['PRODUCTID'],
                             'Details' => $e
                         ];
                     }

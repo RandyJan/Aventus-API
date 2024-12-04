@@ -34,7 +34,7 @@ class OrderslipHeader extends Model
         "STATUS",
         "OUTLETID",
         "VATABLE_SALES",
-        "VAT_AMOUNT",
+        "VAT_AMAOUNT",
         "SC_DISCOUNT",
         "SC_DISCOUNT_AMOUNT",
         "VAT_EX",
@@ -44,7 +44,8 @@ class OrderslipHeader extends Model
         "DATE",
         "CUSTTIN",
         "CUSTADDRESS",
-        "IS_SC"
+        "IS_SC",
+        
 
     ];
     public static function getNewId($branch_id=null, $outlet_id=null, $device_no=null){
