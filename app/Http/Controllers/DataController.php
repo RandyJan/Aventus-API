@@ -43,14 +43,15 @@ class DataController extends Controller
                             // 'QUANTITY' => $items['QUANTITY'],
                             // 'COST' => $items['COST'],
                             // 'NETCOST' => $items['NETCOST'],
-                            'RETAIL' => $items['RETAIL'],
-                            'NETRETAIL' => $items['NETRETAIL'],
+                            'RETAIL' => $items['PRIVATERATE'],
+                            'NETRETAIL' => $items['CORPRATE'],
                             // 'CREDIT' => $items['CREDIT'],
                             // 'PROVINCE' => $items['PROVINCE'],
                             'STATUS' => "A",
                             'VAT'=>$items['VATABLE'],
                             'STDCARCASSWEIGHT'=>$items['SCDISCRATE'],
                             'TIMPLADOS'=>$items['SCVATEX']
+
                         ]);
 
                         $resProducts[] = [
