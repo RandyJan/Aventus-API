@@ -70,7 +70,7 @@ class DataController extends Controller
                     }
                 }
             }
-                if (($request['Discounts']) != 0) {
+                if (count($request['Discounts']) != 0) {
                     try {
 
 
@@ -121,7 +121,7 @@ class DataController extends Controller
                     "Info" => $resData
                 ]);
             } 
-            if (($request['Mop']) != 0) {
+            if (count($request['Mop']) != 0) {
                 try {
 
 
@@ -151,7 +151,7 @@ class DataController extends Controller
                     $resData[] = [
                         'StatusCode' => 500,
                         'Message' => 'Failed',
-                        'DISCID' => $items['ID'] ?? $maxId,
+                        'MOPID' => $items['ID'] ?? $maxId,
                         'Details' => $e
                     ];
                 }
