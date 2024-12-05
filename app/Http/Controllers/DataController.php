@@ -115,11 +115,11 @@ class DataController extends Controller
                         ];
                     }
                   
-                return response()->json([
-                    'StatusCode' => 200,
-                    "Message" => "Success",
-                    "Info" => $resData
-                ]);
+                // return response()->json([
+                //     'StatusCode' => 200,
+                //     "Message" => "Success",
+                //     "Info" => $resData
+                // ]);
             } 
             if (count($request['Mop']) != 0) {
                 try {
