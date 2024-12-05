@@ -112,7 +112,7 @@ class OrderSlipController extends Controller
                             'OSNUMBER' => $request["OSNUMBER"],
                             // 'MAIN_OSNUMBER' => $items['OSNUMBER'],
                             'PRODUCT_ID' => $items['PRODUCT_ID'],
-                            'PARTNO' => $items['PARTNO'],
+                            // 'PARTNO' => $items['PARTNO'],
                             'RETAILPRICE' => $items['RETAILPRICE'],
                             'QUANTITY' => $items['QUANTITY'],
                             'REQUESTEDQTY' => $items['QUANTITY'],
