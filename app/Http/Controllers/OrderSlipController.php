@@ -7,6 +7,7 @@ use App\Models\OrderslipDetail;
 use App\Models\OrderslipHeader;
 use App\Models\SiteParts;
 use App\Models\transactionDetails;
+use App\Models\TransactionHeader;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -177,29 +178,62 @@ class OrderSlipController extends Controller
         }
     }
 
-    public function sumrpt($branch,$date){
-    //   $os =  OrderslipHeader::select("ORDERSLIPNO","BUSDATE","OSNUMBER as JONUMBER","CCENAME as CASHIERNAME","TOTALAMOUNT","ACCOUNTTYPE as COMPANY","DISCOUNT","SC_DISCOUNT_AMOUNT","NETAMOUNT","VATABLE_SALES","VAT_EX")->where('DATE','>=',$date)->where("BRANCHID",$branch)->get();
-    
-    // $os = OrderslipDetail::leftJoin('OrderSlipHeader',"OrderSlipDetails.OSNUMBER","=",
-    // "OrderSlipHeader.OSNUMBER")
-    // ->select("OrderSlipHeader.ORDERSLIPNO as ORNUMBER","OrderSlipHeader.BUSDATE",
-    // "OrderSlipHeader.OSNUMBER as JONUMBER","OrderSlipHeader.CCENAME as CASHIERNAME","OrderSlipHeader.CUSTOMERNAME as PATIENTNAME","OrderSlipHeader.ACCOUNTTYPE as COMPANY",
-    // "OrderSlipDetails.AMOUNT","OrderSlipDetail.DISCOUNT","OrderSlipDetails.NETAMOUNT","OrderSlipDetails.VATABLE_SALES",
-    // "OrderSlipDetails.VAT_EX","OrderSlipDetails.VAT_AMOUNT",)
-    // ->where("OrderSlipHeader.DATE",">=",$date)
-    // ->where("OrderSlipHeader.BRANCHID",$branch)
-    // ->get();
-
-        $res = transactionDetails::leftJoin('TransactionHeader','TransactionDetails.TRHID','=','TransactionHeader.TRHID')
-        ->select('TransactionDetails.DESC','TransactionDetails.TOTAL')
-        ->where("TransactionHeader.BRANCHID",$branch)
-        ->where("TransactionHeader.DATE",'>=',$date)
+    public function sumrpt(Request $request,$branch,$date){
+        if ($this->basicauth($request->header('Authorization', 'default'))) {
+        $res = TransactionHeader::leftJoin('TransactionDetails','TransactionDetails.TRHID','=','TransactionHeader.TRHID')
+        ->leftJoin('OrderSlipDetails','TransactionHeader.ORDERSLIPNO','=','OrderSlipDetails.OSNUMBER')
+        ->leftJoin('OrderSlipHeader','OrderSlipHeader.OSNUMBER','=','OrderSlipDetails.OSNUMBER')
+        ->leftjoin('SiteParts','SiteParts.PRODUCT_ID','=','OrderSlipDetails.PRODUCT_ID')
+        ->select('TransactionDetails.SEQ','TransactionDetails.TRHID','OrderSlipDetails.ORDERSLIPNO as ORNUMBER','OrderSlipDetails.OSNUMBER as JONUMBER',
+        'OrderSlipHeader.ENCODEDBY as CASHIERNAME','OrderSlipHeader.CUSTOMERNAME as PATIENTNAME','OrderSlipHeader.ACCOUNTTYPE as COMPANY',
+        'OrderSlipDetails.AMOUNT','OrderSlipDetails.DISCOUNT','OrderSlipDetails.SC_DISCOUNT_AMOUNT as SCPWDDISCOUNT',
+        'OrderSlipDetails.NETAMOUNT','OrderSlipDetails.NETAMOUNT','OrderSlipDetails.VATABLE_SALES as VATABLE','OrderSlipDetails.VAT_EX as VATEXEMPT','VATAMOUNT as VAT'
+        ,'SiteParts.SHORTCODE as PARTICULARS')
+        ->where('OrderSlipDetails.BRANCHID',$branch)
+        ->where('OrderSlipDetails.STATUS','X')
+        ->where('OrderSlipDetails.OSDATE','>=',$date)
+        ->where('transactionDetails.INFO','I [ ')
         ->get();
-        $data =[];
-        foreach($res as $item){
-
+        $mopRes = [];
+        $trhid = 0;
+        $seq= 0;
+        if(count($res)<1 || !$res){
+            return response()->json(['StatusCode'=>404,'Message'=>'Not found!','BRANCHID'=>$branch,'DATE'=>$date],404);
         }
-    // $res = transactionDetails::leftJoin('TransactionHeader','TransactionDetails.ORDERSLIPNO')
-        return response()->json($res);
+        foreach($res as $itemmop){
+            if($trhid != $itemmop['TRHID'] && $seq != $itemmop['SEQ'] ){
+
+                $mop = transactionDetails::where('TRHID',$itemmop['TRHID'])->where('INFO','P')
+                ->orWhere('INFO','P L')
+                // ->orWhere('INFO','C')
+                ->get();
+                foreach($mop as $mopitem){
+                    $change = transactionDetails::where('TRHID',$mopitem['TRHID'])->where('INFO','C')->get();
+                    $value = $mopitem['TOTAL'];
+                    if(count($change) > 0 && trim($mopitem['DESC']) == 'CASH'){
+                        $value = $mopitem['TOTAL']-$change[0]['TOTAL'];
+                    }
+                    $mopRes[]=['TRHID'=>$mopitem['TRHID'],'DESCRIPTION'=>$mopitem['DESC'],'TOTAL'=>$value];
+                }
+            }
+            $trhid = $itemmop['TRHID'];
+            $seq = $itemmop['SEQ'];
+        }
+        return response()->json(['StatusCode'=>200,
+                                        'Message'=>'Success',
+                                        'BRANCHID'=>$branch,
+                                        'DATE'=>$date,
+                                        'ITEMS'=>$res,
+                                        'MOP'=>$mopRes]
+            );
+    }else {
+        return response()->json([
+            'StatusCode' => 401,
+            'Message' => "Unauthorized Access"
+        ], 401);
     }
+
+
+}
+    
 }
