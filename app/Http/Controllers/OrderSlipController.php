@@ -179,12 +179,12 @@ class OrderSlipController extends Controller
     }
 
     public function sumrpt(Request $request,$branch,$date){
-        if ($this->basicauth($request->header('Authorization', 'default'))) {
+         if ($this->basicauth($request->header('Authorization', 'default'))) {
         $res = TransactionHeader::leftJoin('TransactionDetails','TransactionDetails.TRHID','=','TransactionHeader.TRHID')
         ->leftJoin('OrderSlipDetails','TransactionHeader.ORDERSLIPNO','=','OrderSlipDetails.OSNUMBER')
         ->leftJoin('OrderSlipHeader','OrderSlipHeader.OSNUMBER','=','OrderSlipDetails.OSNUMBER')
         ->leftjoin('SiteParts','SiteParts.PRODUCT_ID','=','OrderSlipDetails.PRODUCT_ID')
-        ->select('TransactionDetails.SEQ','TransactionDetails.TRHID','OrderSlipDetails.ORDERSLIPNO as ORNUMBER','OrderSlipDetails.OSNUMBER as JONUMBER',
+        ->select('TransactionDetails.SEQ','TransactionDetails.TRHID','OrderSlipDetails.ORDERSLIPNO as ORNUMBER','OrderSlipDetails.ENCODEDDATE as DATE','OrderSlipDetails.OSNUMBER as JONUMBER',
         'OrderSlipHeader.ENCODEDBY as CASHIERNAME','OrderSlipHeader.CUSTOMERNAME as PATIENTNAME','OrderSlipHeader.ACCOUNTTYPE as COMPANY',
         'OrderSlipDetails.AMOUNT','OrderSlipDetails.DISCOUNT','OrderSlipDetails.SC_DISCOUNT_AMOUNT as SCPWDDISCOUNT',
         'OrderSlipDetails.NETAMOUNT','OrderSlipDetails.NETAMOUNT','OrderSlipDetails.VATABLE_SALES as VATABLE','OrderSlipDetails.VAT_EX as VATEXEMPT','VATAMOUNT as VAT'
@@ -197,6 +197,8 @@ class OrderSlipController extends Controller
         $mopRes = [];
         $trhid = 0;
         $seq= 0;
+     
+        
         if(count($res)<1 || !$res){
             return response()->json(['StatusCode'=>404,'Message'=>'Not found!','BRANCHID'=>$branch,'DATE'=>$date],404);
         }
