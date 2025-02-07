@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -11,6 +12,12 @@ class OrderslipDetail extends Model
     use HasFactory;
     protected $table = "OrderSlipDetails";
 
+    /**
+     * Convert Clarion date to YYYY-MM-DD format.
+     *
+     * @param int $clarionDate
+     * @return string|null
+     */
     protected $fillable =
     [
         "PRODUCT_ID",
@@ -68,6 +75,14 @@ class OrderslipDetail extends Model
         $start_from = \Carbon\Carbon::parse($start_date);
         $diff = $date->diffInDays($start_from) + 4;
         return $diff;
+    }
+    public function convertClarionDateToDate($clarionDate)
+    {
+        $baseDate = Carbon::createFromDate(1900, 1, 1);
+        
+        $actualDate = $baseDate->addDays($clarionDate - 1);
+
+        return $actualDate->format('Y-m-d');
     }
     public  $timestamp = false;
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Parts;
 use Illuminate\Http\Request;
 use App\Models\adjustmenRateDetails;
+use App\Models\SiteParts;
 use App\Traits\auth;
 class LookUpController extends Controller
 {
@@ -12,7 +13,7 @@ class LookUpController extends Controller
     //
     public function getAllProducts(Request $request){
       if($this->basicauth($request->header('Authorization', 'default'))){
-      $response =   Parts::where("Status","A")->limit(100)->get();
+      $response =   SiteParts::where("Status","A")->limit(100)->get();
 
       if(!$response){
         return response()->json(["StatusCode"=>404,

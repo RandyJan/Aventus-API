@@ -99,11 +99,21 @@ class OrderSlipController extends Controller
                                 ], 404);
                             }
                         }
+                        if(env('BRANCH')!= $request['BRANCHID']){
+                            DB::rollBack();
+                            return response()->json([
+                                'StatusCode' => 500,
+                                'Message' => 'BRANCHID dont match on the current branch',
+                                "DISCID" => $request['BRANCHID']
+                            ], 500);
+
+                        }
                         $retval = OrderslipDetail::where('OSNUMBER',$request['OSNUMBER'])->orderBy('POSLINENO','desc')->first();
                         $ret = 1;
                         if($retval){
                             $ret = $retval->ORDERSLIPDETAILID+1;
                         }
+
                         $itemData =   OrderslipDetail::insert([
                             'ORDERSLIPDETAILID' => $ret,
                             'ORDERSLIPNO' => $orderslipNumber,
@@ -180,24 +190,36 @@ class OrderSlipController extends Controller
 
     public function sumrpt(Request $request,$branch,$date){
          if ($this->basicauth($request->header('Authorization', 'default'))) {
-        $res = TransactionHeader::leftJoin('TransactionDetails','TransactionDetails.TRHID','=','TransactionHeader.TRHID')
-        ->leftJoin('OrderSlipDetails','TransactionHeader.ORDERSLIPNO','=','OrderSlipDetails.OSNUMBER')
-        ->leftJoin('OrderSlipHeader','OrderSlipHeader.OSNUMBER','=','OrderSlipDetails.OSNUMBER')
-        ->leftjoin('SiteParts','SiteParts.PRODUCT_ID','=','OrderSlipDetails.PRODUCT_ID')
-        ->select('TransactionDetails.SEQ','TransactionDetails.TRHID','OrderSlipDetails.ORDERSLIPNO as ORNUMBER','OrderSlipDetails.ENCODEDDATE as DATE','OrderSlipDetails.OSNUMBER as JONUMBER',
-        'OrderSlipHeader.ENCODEDBY as CASHIERNAME','OrderSlipHeader.CUSTOMERNAME as PATIENTNAME','OrderSlipHeader.ACCOUNTTYPE as COMPANY',
-        'OrderSlipDetails.AMOUNT','OrderSlipDetails.DISCOUNT','OrderSlipDetails.SC_DISCOUNT_AMOUNT as SCPWDDISCOUNT',
-        'OrderSlipDetails.NETAMOUNT','OrderSlipDetails.NETAMOUNT','OrderSlipDetails.VATABLE_SALES as VATABLE','OrderSlipDetails.VAT_EX as VATEXEMPT','VATAMOUNT as VAT'
-        ,'SiteParts.SHORTCODE as PARTICULARS')
-        ->where('OrderSlipDetails.BRANCHID',$branch)
-        ->where('OrderSlipDetails.STATUS','X')
-        ->where('OrderSlipDetails.OSDATE','>=',$date)
-        ->where('transactionDetails.INFO','I [ ')
-        ->get();
+            $res = TransactionHeader::leftJoin('TransactionDetails', 'TransactionDetails.TRHID', '=', 'TransactionHeader.TRHID')
+            ->leftJoin('OrderSlipDetails', 'TransactionHeader.ORDERSLIPNO', '=', 'OrderSlipDetails.OSNUMBER')
+            ->leftJoin('OrderSlipHeader', 'OrderSlipHeader.OSNUMBER', '=', 'OrderSlipDetails.OSNUMBER')
+            ->leftJoin('SiteParts', 'SiteParts.PRODUCT_ID', '=', 'OrderSlipDetails.PRODUCT_ID')
+            ->select(
+                'TransactionDetails.SEQ',
+                'TransactionDetails.TRHID',
+                'OrderSlipDetails.ORDERSLIPNO as ORNUMBER',
+                DB::raw("FORMAT(DATEADD(DAY, CAST(OrderSlipDetails.ENCODEDDATE AS INT), '1900-01-01'), 'yyyy-MM-dd') as DATE"), // Convert ENCODEDDATE
+                'OrderSlipDetails.OSNUMBER as JONUMBER',
+                'OrderSlipHeader.ENCODEDBY as CASHIERNAME',
+                'OrderSlipHeader.CUSTOMERNAME as PATIENTNAME',
+                'OrderSlipHeader.ACCOUNTTYPE as COMPANY',
+                'OrderSlipDetails.AMOUNT',
+                DB::raw("COALESCE(CAST(OrderSlipDetails.DISCOUNT AS FLOAT), 0) as DISCOUNT"),
+                DB::raw('CAST(OrderSlipDetails.SC_DISCOUNT_AMOUNT AS FLOAT)  as SCPWDDISCOUNT'),
+                'OrderSlipDetails.NETAMOUNT',
+                DB::raw('CAST(OrderSlipDetails.VATABLE_SALES AS FLOAT) as VATABLE'),
+                DB::raw('CAST(OrderSlipDetails.VAT_EX AS FLOAT) as VATEXEMPT'),
+                DB::raw('CAST(VATAMOUNT AS FLOAT)as VAT '),
+                'SiteParts.SHORTCODE as PARTICULARS'
+            )
+            ->where('OrderSlipDetails.BRANCHID', $branch)
+            ->where('OrderSlipDetails.STATUS', 'X')
+            ->where(DB::raw("FORMAT(DATEADD(DAY, CAST(OrderSlipDetails.ENCODEDDATE AS INT), '1900-01-01'), 'yyyy-MM-dd')"), '>=', $date)
+            ->where('TransactionDetails.INFO', 'I [ ')
+            ->get();
         $mopRes = [];
         $trhid = 0;
         $seq= 0;
-     
         
         if(count($res)<1 || !$res){
             return response()->json(['StatusCode'=>404,'Message'=>'Not found!','BRANCHID'=>$branch,'DATE'=>$date],404);
@@ -224,8 +246,8 @@ class OrderSlipController extends Controller
         return response()->json(['StatusCode'=>200,
                                         'Message'=>'Success',
                                         'BRANCHID'=>$branch,
-                                        'DATE'=>$date,
-                                        'ITEMS'=>$res,
+                                        'DATE'=>$res[0]['DATE'],
+                                        'TRANSACTIONS'=>$res,
                                         'MOP'=>$mopRes]
             );
     }else {
